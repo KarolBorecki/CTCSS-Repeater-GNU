@@ -1,0 +1,427 @@
+options:
+  parameters:
+    author: ''
+    catch_exceptions: 'True'
+    category: '[GRC Hier Blocks]'
+    cmake_opt: ''
+    comment: ''
+    copyright: ''
+    description: ''
+    gen_cmake: 'On'
+    gen_linking: dynamic
+    generate_options: qt_gui
+    hier_block_src_path: '.:'
+    id: part_2
+    max_nouts: '0'
+    output_language: python
+    placement: (0,0)
+    qt_qss_theme: ''
+    realtime_scheduling: ''
+    run: 'True'
+    run_command: '{python} -u {filename}'
+    run_options: prompt
+    sizing_mode: fixed
+    thread_safe_setters: ''
+    title: Not titled yet
+    window_size: (1000,1000)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 8]
+    rotation: 0
+    state: enabled
+
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: '32000'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [200, 12]
+    rotation: 0
+    state: enabled
+- name: sim_ctcss
+  id: variable_qtgui_chooser
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Symulacja CTCSS
+    label0: Brak Tonu
+    label1: Wykryto Ton
+    label2: ''
+    label3: ''
+    label4: ''
+    labels: '[]'
+    num_opts: '2'
+    option0: '0'
+    option1: '1'
+    option2: '2'
+    option3: '3'
+    option4: '4'
+    options: '[0, 1, 2]'
+    orient: Qt.QVBoxLayout
+    type: real
+    value: '0'
+    widget: combo_box
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [168, 476.0]
+    rotation: 0
+    state: enabled
+- name: sim_power
+  id: variable_qtgui_chooser
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: Symulacja Tonu 1750Hz
+    label0: Cisza
+    label1: PIK!
+    label2: ''
+    label3: ''
+    label4: ''
+    labels: '[]'
+    num_opts: '2'
+    option0: '0'
+    option1: '1'
+    option2: '2'
+    option3: '3'
+    option4: '4'
+    options: '[0, 1, 2]'
+    orient: Qt.QVBoxLayout
+    type: real
+    value: '0'
+    widget: combo_box
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [136, 732.0]
+    rotation: 0
+    state: enabled
+- name: analog_const_source_x_0
+  id: analog_const_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: sim_ctcss
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [304, 480.0]
+    rotation: 0
+    state: enabled
+- name: analog_const_source_x_0_0
+  id: analog_const_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: sim_power
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [304, 736.0]
+    rotation: 0
+    state: enabled
+- name: analog_sig_source_x_0
+  id: analog_sig_source_x
+  parameters:
+    affinity: ''
+    alias: ''
+    amp: '0.5'
+    comment: ''
+    freq: '440'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    offset: '0'
+    phase: '0'
+    samp_rate: samp_rate
+    showports: 'False'
+    type: float
+    waveform: analog.GR_COS_WAVE
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [88, 248.0]
+    rotation: 0
+    state: enabled
+- name: blocks_throttle2_0
+  id: blocks_throttle2
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ignoretag: 'True'
+    limit: auto
+    maximum: '0.1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samples_per_second: samp_rate
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [312, 248.0]
+    rotation: 0
+    state: enabled
+- name: epy_block_0
+  id: epy_block
+  parameters:
+    _source_code: "import numpy as np\nfrom gnuradio import gr\n\nclass repeater_control(gr.sync_block):\n\
+      \    \"\"\"\n    Logika steruj\u0105ca przemiennikiem:\n    - Wej\u015Bcie 0:\
+      \ Surowe Audio (zdemodulowane)\n    - Wej\u015Bcie 1: Detekcja CTCSS (sygna\u0142\
+      \ 0.0 lub 1.0)\n    - Wej\u015Bcie 2: Detekcja Tonu Mocy (sygna\u0142 0.0 lub\
+      \ 1.0)\n    \n    - Wyj\u015Bcie 0: Audio Bramkowane (idzie do nadajnika)\n\
+      \    - Wyj\u015Bcie 1: Poziom Mocy (mno\u017Cnik dla bloku Multiply)\n    \"\
+      \"\"\n\n    def __init__(self, sample_rate=48000, cooldown_seconds=2.0):\n \
+      \       gr.sync_block.__init__(\n            self,\n            name='Repeater\
+      \ Logic Controller',   \n            in_sig=[np.float32, np.float32, np.float32],\n\
+      \            out_sig=[np.float32, np.float32]\n        )\n        \n       \
+      \ # Konfiguracja\n        self.sample_rate = sample_rate\n        self.cooldown_samples\
+      \ = int(sample_rate * cooldown_seconds)\n        \n        # Stan wewn\u0119\
+      trzny\n        self.current_gain = 0.2  # Domy\u015Blna moc (np. 20% amplitudy)\n\
+      \        self.high_gain = 1.0     # Maksymalna moc\n        self.low_gain =\
+      \ 0.2      # Minimalna moc\n        \n        self.timer = 0           # Licznik\
+      \ czasu do debouncingu prze\u0142\u0105czania mocy\n\n    def work(self, input_items,\
+      \ output_items):\n        # Pobranie bufor\xF3w wej\u015Bciowych\n        audio_in\
+      \ = input_items[0]\n        ctcss_signal = input_items[1]\n        power_cmd_signal\
+      \ = input_items[2]\n        \n        # Przygotowanie bufor\xF3w wyj\u015Bciowych\n\
+      \        audio_out = output_items[0]\n        gain_out = output_items[1]\n \
+      \       \n        # --- LOGIKA 1: Bramka Szum\xF3w (Squelch) na podstawie CTCSS\
+      \ ---\n        # Tworzymy mask\u0119: gdzie CTCSS > 0.5, tam 1, indziej 0\n\
+      \        # Mo\u017Cemy u\u017Cy\u0107 np.mean dla ca\u0142ego bloku, lub pr\xF3\
+      bka po pr\xF3bce.\n        # Tutaj wersja pr\xF3bka po pr\xF3bce dla szybkiej\
+      \ reakcji:\n        squelch_mask = (ctcss_signal > 0.5).astype(np.float32)\n\
+      \        \n        # Mno\u017Cymy audio przez mask\u0119 (1=gra, 0=cisza)\n\
+      \        audio_out[:] = audio_in * squelch_mask\n        \n        # --- LOGIKA\
+      \ 2: Zmiana Mocy (z zabezpieczeniem czasowym) ---\n        # Sprawdzamy, czy\
+      \ w aktualnym buforze pojawi\u0142 si\u0119 ton steruj\u0105cy\n        # U\u017C\
+      ywamy np.max, aby wykry\u0107 chocia\u017C kr\xF3tki sygna\u0142 w tym oknie\
+      \ czasu\n        \n        tone_detected = np.max(power_cmd_signal) > 0.5\n\
+      \        \n        # Obs\u0142uga licznika (cooldown) - odliczamy w d\xF3\u0142\
+      \n        if self.timer > 0:\n            self.timer -= len(audio_in)\n    \
+      \    \n        # Je\u015Bli wykryto ton I licznik zszed\u0142 do zera -> Prze\u0142\
+      \u0105cz moc\n        if tone_detected and self.timer <= 0:\n            if\
+      \ self.current_gain == self.low_gain:\n                self.current_gain = self.high_gain\n\
+      \            else:\n                self.current_gain = self.low_gain\n    \
+      \        \n            # Zresetuj timer (np. na 2 sekundy), \u017Ceby nie prze\u0142\
+      \u0105cza\u0142o w k\xF3\u0142ko\n            self.timer = self.cooldown_samples\n\
+      \            \n        # Wystawienie aktualnej warto\u015Bci mocy na wyj\u015B\
+      cie (sta\u0142a dla ca\u0142ego bufora)\n        gain_out[:] = self.current_gain\n\
+      \        \n        return len(output_items[0])"
+    affinity: ''
+    alias: ''
+    comment: ''
+    cooldown_seconds: '1.0'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    sample_rate: samp_rate
+  states:
+    _io_cache: "('Repeater Logic Controller', 'repeater_control', [('sample_rate',\
+      \ '48000'), ('cooldown_seconds', '2.0')], [('0', 'float', 1), ('1', 'float',\
+      \ 1), ('2', 'float', 1)], [('0', 'float', 1), ('1', 'float', 1)], '\\nLogika\
+      \ steruj\u0105ca przemiennikiem:\\n- Wej\u015Bcie 0: Surowe Audio (zdemodulowane)\\\
+      n- Wej\u015Bcie 1: Detekcja CTCSS (sygna\u0142 0.0 lub 1.0)\\n- Wej\u015Bcie\
+      \ 2: Detekcja Tonu Mocy (sygna\u0142 0.0 lub 1.0)\\n\\n- Wyj\u015Bcie 0: Audio\
+      \ Bramkowane (idzie do nadajnika)\\n- Wyj\u015Bcie 1: Poziom Mocy (mno\u017C\
+      nik dla bloku Multiply)\\n', ['sample_rate'])"
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [616, 456.0]
+    rotation: 0
+    state: enabled
+- name: note_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: AUDIO SIGNAL SIMULATION
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [192, 184.0]
+    rotation: 0
+    state: enabled
+- name: note_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: CTCSS  SIMULATION
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [232, 416.0]
+    rotation: 0
+    state: enabled
+- name: note_0_0_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: POWER SIMULATION
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [224, 672.0]
+    rotation: 0
+    state: enabled
+- name: note_1
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: CORE FUNCTIONALLITY
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [616, 400.0]
+    rotation: 0
+    state: enabled
+- name: note_1_0
+  id: note
+  parameters:
+    alias: ''
+    comment: ''
+    note: VISUALIZATION
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [968, 320.0]
+    rotation: 0
+    state: enabled
+- name: qtgui_time_sink_x_0
+  id: qtgui_time_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'True'
+    axislabels: 'True'
+    color1: blue
+    color10: dark blue
+    color2: red
+    color3: green
+    color4: black
+    color5: cyan
+    color6: magenta
+    color7: yellow
+    color8: dark red
+    color9: dark green
+    comment: ''
+    ctrlpanel: 'False'
+    entags: 'True'
+    grid: 'False'
+    gui_hint: ''
+    label1: Signal 1
+    label10: Signal 10
+    label2: Signal 2
+    label3: Signal 3
+    label4: Signal 4
+    label5: Signal 5
+    label6: Signal 6
+    label7: Signal 7
+    label8: Signal 8
+    label9: Signal 9
+    legend: 'True'
+    marker1: '-1'
+    marker10: '-1'
+    marker2: '-1'
+    marker3: '-1'
+    marker4: '-1'
+    marker5: '-1'
+    marker6: '-1'
+    marker7: '-1'
+    marker8: '-1'
+    marker9: '-1'
+    name: '""'
+    nconnections: '3'
+    size: '1024'
+    srate: samp_rate
+    stemplot: 'False'
+    style1: '1'
+    style10: '1'
+    style2: '1'
+    style3: '1'
+    style4: '1'
+    style5: '1'
+    style6: '1'
+    style7: '1'
+    style8: '1'
+    style9: '1'
+    tr_chan: '0'
+    tr_delay: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_slope: qtgui.TRIG_SLOPE_POS
+    tr_tag: '""'
+    type: float
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    ylabel: Amplitude
+    ymax: '1'
+    ymin: '-1'
+    yunit: '""'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [952, 376.0]
+    rotation: 0
+    state: enabled
+
+connections:
+- [analog_const_source_x_0, '0', epy_block_0, '1']
+- [analog_const_source_x_0_0, '0', epy_block_0, '2']
+- [analog_sig_source_x_0, '0', blocks_throttle2_0, '0']
+- [blocks_throttle2_0, '0', epy_block_0, '0']
+- [blocks_throttle2_0, '0', qtgui_time_sink_x_0, '0']
+- [epy_block_0, '0', qtgui_time_sink_x_0, '1']
+- [epy_block_0, '1', qtgui_time_sink_x_0, '2']
+
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0
