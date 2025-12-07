@@ -196,37 +196,22 @@ blocks:
       \       gr.sync_block.__init__(\n            self,\n            name='Repeater\
       \ Logic Controller',   \n            in_sig=[np.float32, np.float32, np.float32],\n\
       \            out_sig=[np.float32, np.float32]\n        )\n        \n       \
-      \ # Konfiguracja\n        self.sample_rate = sample_rate\n        self.cooldown_samples\
-      \ = int(sample_rate * cooldown_seconds)\n        \n        # Stan wewn\u0119\
-      trzny\n        self.current_gain = 0.2  # Domy\u015Blna moc (np. 20% amplitudy)\n\
-      \        self.high_gain = 1.0     # Maksymalna moc\n        self.low_gain =\
-      \ 0.2      # Minimalna moc\n        \n        self.timer = 0           # Licznik\
+      \ self.sample_rate = sample_rate\n        self.cooldown_samples = int(sample_rate\
+      \ * cooldown_seconds)\n        \n        self.current_gain = 0.2  # Domy\u015B\
+      lna moc\n        self.high_gain = 1.0     # Maksymalna moc\n        self.low_gain\
+      \ = 0.2      # Minimalna moc\n        \n        self.timer = 0           # Licznik\
       \ czasu do debouncingu prze\u0142\u0105czania mocy\n\n    def work(self, input_items,\
-      \ output_items):\n        # Pobranie bufor\xF3w wej\u015Bciowych\n        audio_in\
-      \ = input_items[0]\n        ctcss_signal = input_items[1]\n        power_cmd_signal\
-      \ = input_items[2]\n        \n        # Przygotowanie bufor\xF3w wyj\u015Bciowych\n\
-      \        audio_out = output_items[0]\n        gain_out = output_items[1]\n \
-      \       \n        # --- LOGIKA 1: Bramka Szum\xF3w (Squelch) na podstawie CTCSS\
-      \ ---\n        # Tworzymy mask\u0119: gdzie CTCSS > 0.5, tam 1, indziej 0\n\
-      \        # Mo\u017Cemy u\u017Cy\u0107 np.mean dla ca\u0142ego bloku, lub pr\xF3\
-      bka po pr\xF3bce.\n        # Tutaj wersja pr\xF3bka po pr\xF3bce dla szybkiej\
-      \ reakcji:\n        squelch_mask = (ctcss_signal > 0.5).astype(np.float32)\n\
-      \        \n        # Mno\u017Cymy audio przez mask\u0119 (1=gra, 0=cisza)\n\
-      \        audio_out[:] = audio_in * squelch_mask\n        \n        # --- LOGIKA\
-      \ 2: Zmiana Mocy (z zabezpieczeniem czasowym) ---\n        # Sprawdzamy, czy\
-      \ w aktualnym buforze pojawi\u0142 si\u0119 ton steruj\u0105cy\n        # U\u017C\
-      ywamy np.max, aby wykry\u0107 chocia\u017C kr\xF3tki sygna\u0142 w tym oknie\
-      \ czasu\n        \n        tone_detected = np.max(power_cmd_signal) > 0.5\n\
-      \        \n        # Obs\u0142uga licznika (cooldown) - odliczamy w d\xF3\u0142\
-      \n        if self.timer > 0:\n            self.timer -= len(audio_in)\n    \
-      \    \n        # Je\u015Bli wykryto ton I licznik zszed\u0142 do zera -> Prze\u0142\
-      \u0105cz moc\n        if tone_detected and self.timer <= 0:\n            if\
-      \ self.current_gain == self.low_gain:\n                self.current_gain = self.high_gain\n\
-      \            else:\n                self.current_gain = self.low_gain\n    \
-      \        \n            # Zresetuj timer (np. na 2 sekundy), \u017Ceby nie prze\u0142\
-      \u0105cza\u0142o w k\xF3\u0142ko\n            self.timer = self.cooldown_samples\n\
-      \            \n        # Wystawienie aktualnej warto\u015Bci mocy na wyj\u015B\
-      cie (sta\u0142a dla ca\u0142ego bufora)\n        gain_out[:] = self.current_gain\n\
+      \ output_items):\n        audio_in = input_items[0]\n        ctcss_signal =\
+      \ input_items[1]\n        power_cmd_signal = input_items[2]\n        \n    \
+      \    audio_out = output_items[0]\n        gain_out = output_items[1]\n     \
+      \   \n        squelch_mask = (ctcss_signal > 0.5).astype(np.float32)\n     \
+      \   \n        audio_out[:] = audio_in * squelch_mask\n        \n        tone_detected\
+      \ = np.max(power_cmd_signal) > 0.5\n        \n        if self.timer > 0:\n \
+      \           self.timer -= len(audio_in)\n        \n        if tone_detected\
+      \ and self.timer <= 0:\n            if self.current_gain == self.low_gain:\n\
+      \                self.current_gain = self.high_gain\n            else:\n   \
+      \             self.current_gain = self.low_gain\n            \n            self.timer\
+      \ = self.cooldown_samples\n            \n        gain_out[:] = self.current_gain\n\
       \        \n        return len(output_items[0])"
     affinity: ''
     alias: ''
