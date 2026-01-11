@@ -92,20 +92,21 @@ class part_1(gr.top_block, Qt.QWidget):
         self._audio_amp_range = qtgui.Range(0, 1, 0.01, 0.5, 200)
         self._audio_amp_win = qtgui.RangeWidget(self._audio_amp_range, self.set_audio_amp, "'audio_amp'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._audio_amp_win)
+        self.single_pole_iir_filter_xx_0 = filter.single_pole_iir_filter_ff(0.05, 1)
         self.rational_resampler_xxx_0 = filter.rational_resampler_fff(
                 interpolation=1,
                 decimation=4,
                 taps=[],
                 fractional_bw=0)
-        self.qtgui_number_sink_0 = qtgui.number_sink(
+        self.qtgui_number_sink_1 = qtgui.number_sink(
             gr.sizeof_float,
             0,
             qtgui.NUM_GRAPH_HORIZ,
             1,
             None # parent
         )
-        self.qtgui_number_sink_0.set_update_time(0.10)
-        self.qtgui_number_sink_0.set_title("CTCSS")
+        self.qtgui_number_sink_1.set_update_time(0.10)
+        self.qtgui_number_sink_1.set_title("")
 
         labels = ['', '', '', '', '',
             '', '', '', '', '']
@@ -117,19 +118,19 @@ class part_1(gr.top_block, Qt.QWidget):
             1, 1, 1, 1, 1]
 
         for i in range(1):
-            self.qtgui_number_sink_0.set_min(i, -1)
-            self.qtgui_number_sink_0.set_max(i, 1)
-            self.qtgui_number_sink_0.set_color(i, colors[i][0], colors[i][1])
+            self.qtgui_number_sink_1.set_min(i, -1)
+            self.qtgui_number_sink_1.set_max(i, 1)
+            self.qtgui_number_sink_1.set_color(i, colors[i][0], colors[i][1])
             if len(labels[i]) == 0:
-                self.qtgui_number_sink_0.set_label(i, "Data {0}".format(i))
+                self.qtgui_number_sink_1.set_label(i, "Data {0}".format(i))
             else:
-                self.qtgui_number_sink_0.set_label(i, labels[i])
-            self.qtgui_number_sink_0.set_unit(i, units[i])
-            self.qtgui_number_sink_0.set_factor(i, factor[i])
+                self.qtgui_number_sink_1.set_label(i, labels[i])
+            self.qtgui_number_sink_1.set_unit(i, units[i])
+            self.qtgui_number_sink_1.set_factor(i, factor[i])
 
-        self.qtgui_number_sink_0.enable_autoscale(False)
-        self._qtgui_number_sink_0_win = sip.wrapinstance(self.qtgui_number_sink_0.qwidget(), Qt.QWidget)
-        self.top_layout.addWidget(self._qtgui_number_sink_0_win)
+        self.qtgui_number_sink_1.enable_autoscale(False)
+        self._qtgui_number_sink_1_win = sip.wrapinstance(self.qtgui_number_sink_1.qwidget(), Qt.QWidget)
+        self.top_layout.addWidget(self._qtgui_number_sink_1_win)
         self.qtgui_freq_sink_x_2 = qtgui.freq_sink_f(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -259,15 +260,6 @@ class part_1(gr.top_block, Qt.QWidget):
 
         self._qtgui_freq_sink_x_0_win = sip.wrapinstance(self.qtgui_freq_sink_x_0.qwidget(), Qt.QWidget)
         self.top_layout.addWidget(self._qtgui_freq_sink_x_0_win)
-        self.low_pass_filter_1 = filter.fir_filter_fff(
-            1,
-            firdes.low_pass(
-                1,
-                samp_rate,
-                260,
-                50,
-                window.WIN_HAMMING,
-                6.76))
         self.low_pass_filter_0 = filter.fir_filter_ccf(
             1,
             firdes.low_pass(
@@ -287,8 +279,20 @@ class part_1(gr.top_block, Qt.QWidget):
                 window.WIN_HAMMING,
                 6.76))
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, iq_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * iq_rate) if "auto" == "time" else int(0.1), 1) )
+        self.blocks_threshold_ff_0 = blocks.threshold_ff(0.00005, 0.0001, 0)
+        self.blocks_complex_to_mag_squared_0 = blocks.complex_to_mag_squared(1)
         self.blocks_add_xx_2 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
+        self.band_pass_filter_0 = filter.fir_filter_fcc(
+            1,
+            firdes.complex_band_pass(
+                100,
+                samp_rate,
+                (123-5),
+                (123+5),
+                10,
+                window.WIN_HAMMING,
+                6.76))
         self.analog_sig_source_x_2 = analog.sig_source_f(audio_rate, analog.GR_COS_WAVE, 1750, control_amp, 0, 0)
         self.analog_sig_source_x_1 = analog.sig_source_f(audio_rate, analog.GR_COS_WAVE, 440, audio_amp, 0, 0)
         self.analog_sig_source_x_0 = analog.sig_source_f(audio_rate, analog.GR_COS_WAVE, 123, ctss_amp, 0, 0)
@@ -302,13 +306,11 @@ class part_1(gr.top_block, Qt.QWidget):
         	fh=(-1.0),
                 )
         self.analog_fm_deemph_0 = analog.fm_deemph(fs=samp_rate, tau=(75e-6))
-        self.analog_ctcss_squelch_ff_0 = analog.ctcss_squelch_ff(audio_rate, 123, 0.01, 0, 0, False)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_ctcss_squelch_ff_0, 0), (self.qtgui_number_sink_0, 0))
         self.connect((self.analog_fm_deemph_0, 0), (self.qtgui_freq_sink_x_1, 0))
         self.connect((self.analog_nbfm_tx_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.analog_noise_source_x_0, 0), (self.blocks_add_xx_2, 0))
@@ -316,16 +318,19 @@ class part_1(gr.top_block, Qt.QWidget):
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.analog_sig_source_x_1, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.analog_sig_source_x_2, 0), (self.blocks_add_xx_0, 2))
+        self.connect((self.band_pass_filter_0, 0), (self.blocks_complex_to_mag_squared_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.analog_nbfm_tx_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_add_xx_2, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.blocks_complex_to_mag_squared_0, 0), (self.single_pole_iir_filter_xx_0, 0))
+        self.connect((self.blocks_threshold_ff_0, 0), (self.qtgui_number_sink_1, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.blocks_add_xx_2, 1))
         self.connect((self.high_pass_filter_0, 0), (self.analog_fm_deemph_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.analog_quadrature_demod_cf_0, 0))
-        self.connect((self.low_pass_filter_1, 0), (self.analog_ctcss_squelch_ff_0, 0))
+        self.connect((self.rational_resampler_xxx_0, 0), (self.band_pass_filter_0, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.high_pass_filter_0, 0))
-        self.connect((self.rational_resampler_xxx_0, 0), (self.low_pass_filter_1, 0))
         self.connect((self.rational_resampler_xxx_0, 0), (self.qtgui_freq_sink_x_2, 0))
+        self.connect((self.single_pole_iir_filter_xx_0, 0), (self.blocks_threshold_ff_0, 0))
 
 
     def closeEvent(self, event):
@@ -341,8 +346,8 @@ class part_1(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.band_pass_filter_0.set_taps(firdes.complex_band_pass(100, self.samp_rate, (123-5), (123+5), 10, window.WIN_HAMMING, 6.76))
         self.high_pass_filter_0.set_taps(firdes.high_pass(1, self.samp_rate, 300, 50, window.WIN_HAMMING, 6.76))
-        self.low_pass_filter_1.set_taps(firdes.low_pass(1, self.samp_rate, 260, 50, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_1.set_frequency_range(0, self.samp_rate)
 
     def get_noise_amp(self):
