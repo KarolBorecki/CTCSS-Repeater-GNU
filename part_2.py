@@ -77,17 +77,26 @@ class part_2(gr.top_block, Qt.QWidget):
         # Create the labels list
         self._sim_power_labels = ['Cisza', 'PIK!']
         # Create the combo box
-        self._sim_power_tool_bar = Qt.QToolBar(self)
-        self._sim_power_tool_bar.addWidget(Qt.QLabel("Symulacja Tonu 1750Hz" + ": "))
-        self._sim_power_combo_box = Qt.QComboBox()
-        self._sim_power_tool_bar.addWidget(self._sim_power_combo_box)
-        for _label in self._sim_power_labels: self._sim_power_combo_box.addItem(_label)
-        self._sim_power_callback = lambda i: Qt.QMetaObject.invokeMethod(self._sim_power_combo_box, "setCurrentIndex", Qt.Q_ARG("int", self._sim_power_options.index(i)))
-        self._sim_power_callback(self.sim_power)
-        self._sim_power_combo_box.currentIndexChanged.connect(
-            lambda i: self.set_sim_power(self._sim_power_options[i]))
         # Create the radio buttons
-        self.top_layout.addWidget(self._sim_power_tool_bar)
+        self._sim_power_group_box = Qt.QGroupBox("Symulacja Tonu 1750Hz" + ": ")
+        self._sim_power_box = Qt.QVBoxLayout()
+        class variable_chooser_button_group(Qt.QButtonGroup):
+            def __init__(self, parent=None):
+                Qt.QButtonGroup.__init__(self, parent)
+            @pyqtSlot(int)
+            def updateButtonChecked(self, button_id):
+                self.button(button_id).setChecked(True)
+        self._sim_power_button_group = variable_chooser_button_group()
+        self._sim_power_group_box.setLayout(self._sim_power_box)
+        for i, _label in enumerate(self._sim_power_labels):
+            radio_button = Qt.QRadioButton(_label)
+            self._sim_power_box.addWidget(radio_button)
+            self._sim_power_button_group.addButton(radio_button, i)
+        self._sim_power_callback = lambda i: Qt.QMetaObject.invokeMethod(self._sim_power_button_group, "updateButtonChecked", Qt.Q_ARG("int", self._sim_power_options.index(i)))
+        self._sim_power_callback(self.sim_power)
+        self._sim_power_button_group.buttonClicked[int].connect(
+            lambda i: self.set_sim_power(self._sim_power_options[i]))
+        self.top_layout.addWidget(self._sim_power_group_box)
         # Create the options list
         self._sim_ctcss_options = [0, 1]
         # Create the labels list
