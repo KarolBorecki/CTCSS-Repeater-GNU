@@ -287,10 +287,10 @@ class part_1(gr.top_block, Qt.QWidget):
                 window.WIN_HAMMING,
                 6.76))
         self.blocks_throttle2_0 = blocks.throttle( gr.sizeof_gr_complex*1, iq_rate, True, 0 if "auto" == "auto" else max( int(float(0.1) * iq_rate) if "auto" == "time" else int(0.1), 1) )
-        self.blocks_threshold_ff_0_0 = blocks.threshold_ff(0.005, 0.01, 0)
+        self.blocks_threshold_ff_0_0 = blocks.threshold_ff(0.05, 0.1, 0)
+        self.blocks_rms_xx_0 = blocks.rms_ff(0.0001)
         self.blocks_add_xx_2 = blocks.add_vcc(1)
         self.blocks_add_xx_0 = blocks.add_vff(1)
-        self.blocks_abs_xx_0 = blocks.abs_ff(1)
         self.analog_sig_source_x_2 = analog.sig_source_f(audio_rate, analog.GR_COS_WAVE, 1750, control_amp, 0, 0)
         self.analog_sig_source_x_1 = analog.sig_source_f(audio_rate, analog.GR_COS_WAVE, 440, audio_amp, 0, 0)
         self.analog_sig_source_x_0 = analog.sig_source_f(audio_rate, analog.GR_COS_WAVE, 123, ctss_amp, 0, 0)
@@ -310,7 +310,7 @@ class part_1(gr.top_block, Qt.QWidget):
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_ctcss_squelch_ff_0, 0), (self.blocks_abs_xx_0, 0))
+        self.connect((self.analog_ctcss_squelch_ff_0, 0), (self.blocks_rms_xx_0, 0))
         self.connect((self.analog_fm_deemph_0, 0), (self.qtgui_freq_sink_x_1, 0))
         self.connect((self.analog_nbfm_tx_0, 0), (self.blocks_throttle2_0, 0))
         self.connect((self.analog_noise_source_x_0, 0), (self.blocks_add_xx_2, 0))
@@ -318,10 +318,10 @@ class part_1(gr.top_block, Qt.QWidget):
         self.connect((self.analog_sig_source_x_0, 0), (self.blocks_add_xx_0, 0))
         self.connect((self.analog_sig_source_x_1, 0), (self.blocks_add_xx_0, 1))
         self.connect((self.analog_sig_source_x_2, 0), (self.blocks_add_xx_0, 2))
-        self.connect((self.blocks_abs_xx_0, 0), (self.blocks_threshold_ff_0_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.analog_nbfm_tx_0, 0))
         self.connect((self.blocks_add_xx_0, 0), (self.qtgui_freq_sink_x_0, 0))
         self.connect((self.blocks_add_xx_2, 0), (self.low_pass_filter_0, 0))
+        self.connect((self.blocks_rms_xx_0, 0), (self.blocks_threshold_ff_0_0, 0))
         self.connect((self.blocks_threshold_ff_0_0, 0), (self.qtgui_number_sink_0, 0))
         self.connect((self.blocks_throttle2_0, 0), (self.blocks_add_xx_2, 1))
         self.connect((self.high_pass_filter_0, 0), (self.analog_fm_deemph_0, 0))
