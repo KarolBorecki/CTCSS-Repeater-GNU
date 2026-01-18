@@ -205,14 +205,14 @@ blocks:
       \ input_items[1]\n        power_cmd_signal = input_items[2]\n        \n    \
       \    audio_out = output_items[0]\n        gain_out = output_items[1]\n     \
       \   \n        squelch_mask = (ctcss_signal > 0.5).astype(np.float32)\n     \
-      \   \n        audio_out[:] = audio_in * squelch_mask\n        \n        tone_detected\
-      \ = np.max(power_cmd_signal) > 0.5\n        \n        if self.timer > 0:\n \
-      \           self.timer -= len(audio_in)\n        \n        if tone_detected\
-      \ and self.timer <= 0:\n            if self.current_gain == self.low_gain:\n\
-      \                self.current_gain = self.high_gain\n            else:\n   \
-      \             self.current_gain = self.low_gain\n            \n            self.timer\
-      \ = self.cooldown_samples\n            \n        gain_out[:] = self.current_gain\n\
-      \        \n        return len(output_items[0])"
+      \   \n        audio_out[:] = audio_in * squelch_mask * self.current_gain\n \
+      \       \n        tone_detected = np.max(power_cmd_signal) > 0.5\n        \n\
+      \        if self.timer > 0:\n            self.timer -= len(audio_in)\n     \
+      \   \n        if tone_detected and self.timer <= 0:\n            if self.current_gain\
+      \ == self.low_gain:\n                self.current_gain = self.high_gain\n  \
+      \          else:\n                self.current_gain = self.low_gain\n      \
+      \      \n            self.timer = self.cooldown_samples\n            \n    \
+      \    gain_out[:] = self.current_gain\n        \n        return len(output_items[0])"
     affinity: ''
     alias: ''
     comment: ''
@@ -332,10 +332,10 @@ blocks:
     entags: 'True'
     grid: 'False'
     gui_hint: ''
-    label1: Signal 1
+    label1: in audio
     label10: Signal 10
-    label2: Signal 2
-    label3: Signal 3
+    label2: out audio
+    label3: gain
     label4: Signal 4
     label5: Signal 5
     label6: Signal 6

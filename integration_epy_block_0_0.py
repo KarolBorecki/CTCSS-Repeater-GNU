@@ -39,7 +39,7 @@ class repeater_control(gr.sync_block):
         
         squelch_mask = (ctcss_signal > 0.5).astype(np.float32)
         
-        audio_out[:] = audio_in * squelch_mask * self.current_gain
+        audio_out[:] = audio_in * squelch_mask
         
         tone_detected = np.max(power_cmd_signal) > 0.5
         
