@@ -1,29 +1,25 @@
 options:
   parameters:
+    alias: ''
     author: kawakey
     catch_exceptions: 'True'
-    category: '[GRC Hier Blocks]'
-    cmake_opt: ''
     comment: ''
     copyright: ''
     description: ''
-    gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
+    generator_class_name: PythonQtGuiGenerator
+    generator_module: gnuradio.grc.workflows.python_qt_gui
     hier_block_src_path: '.:'
     id: integration_all_audio
     max_nouts: '0'
     output_language: python
-    placement: (0,0)
     qt_qss_theme: ''
     realtime_scheduling: ''
     run: 'True'
     run_command: '{python} -u {filename}'
-    run_options: prompt
-    sizing_mode: fixed
     thread_safe_setters: ''
     title: Not titled yet
-    window_size: (1000,1000)
   states:
     bus_sink: false
     bus_source: false
@@ -222,7 +218,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2048, 928.0]
+    coordinate: [2080, 1016.0]
     rotation: 0
     state: enabled
 - name: analog_const_source_x_0
@@ -256,7 +252,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1944, 928.0]
+    coordinate: [1976, 1016.0]
     rotation: 180
     state: enabled
 - name: analog_const_source_x_0_0_0
@@ -294,7 +290,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1784, 400.0]
+    coordinate: [1744, 400.0]
     rotation: 0
     state: enabled
 - name: analog_fm_deemph_0
@@ -579,6 +575,23 @@ blocks:
     coordinate: [720, 936.0]
     rotation: 180
     state: enabled
+- name: blocks_rms_xx_0
+  id: blocks_rms_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha: '0.0001'
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1960, 440.0]
+    rotation: 0
+    state: enabled
 - name: blocks_selector_0
   id: blocks_selector
   parameters:
@@ -601,6 +614,24 @@ blocks:
     bus_structure: null
     coordinate: [912, 816.0]
     rotation: 180
+    state: enabled
+- name: blocks_threshold_ff_0_0
+  id: blocks_threshold_ff
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    high: '0.1'
+    init: '0'
+    low: '0.05'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2112, 424.0]
+    rotation: 0
     state: enabled
 - name: blocks_throttle2_0
   id: blocks_throttle2
@@ -744,7 +775,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1616, 400.0]
+    coordinate: [1576, 400.0]
     rotation: 0
     state: enabled
 - name: note_0
@@ -783,7 +814,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1992, 880.0]
+    coordinate: [2024, 968.0]
     rotation: 0
     state: enabled
 - name: qtgui_freq_sink_x_0
@@ -1110,6 +1141,87 @@ blocks:
     coordinate: [1592, 704.0]
     rotation: 0
     state: enabled
+- name: qtgui_freq_sink_x_4
+  id: qtgui_freq_sink_x
+  parameters:
+    affinity: ''
+    alias: ''
+    alpha1: '1.0'
+    alpha10: '1.0'
+    alpha2: '1.0'
+    alpha3: '1.0'
+    alpha4: '1.0'
+    alpha5: '1.0'
+    alpha6: '1.0'
+    alpha7: '1.0'
+    alpha8: '1.0'
+    alpha9: '1.0'
+    autoscale: 'False'
+    average: '1.0'
+    axislabels: 'True'
+    bw: samp_rate
+    color1: '"blue"'
+    color10: '"dark blue"'
+    color2: '"red"'
+    color3: '"green"'
+    color4: '"black"'
+    color5: '"cyan"'
+    color6: '"magenta"'
+    color7: '"yellow"'
+    color8: '"dark red"'
+    color9: '"dark green"'
+    comment: ''
+    ctrlpanel: 'False'
+    fc: '0'
+    fftsize: '1024'
+    freqhalf: 'True'
+    grid: 'False'
+    gui_hint: ''
+    label: Relative Gain
+    label1: ''
+    label10: ''''''
+    label2: ''''''
+    label3: ''''''
+    label4: ''''''
+    label5: ''''''
+    label6: ''''''
+    label7: ''''''
+    label8: ''''''
+    label9: ''''''
+    legend: 'True'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    name: '""'
+    nconnections: '1'
+    norm_window: 'False'
+    showports: 'False'
+    tr_chan: '0'
+    tr_level: '0.0'
+    tr_mode: qtgui.TRIG_MODE_FREE
+    tr_tag: '""'
+    type: float
+    units: dB
+    update_time: '0.10'
+    width1: '1'
+    width10: '1'
+    width2: '1'
+    width3: '1'
+    width4: '1'
+    width5: '1'
+    width6: '1'
+    width7: '1'
+    width8: '1'
+    width9: '1'
+    wintype: window.WIN_BLACKMAN_hARRIS
+    ymax: '10'
+    ymin: '-140'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [2120, 528.0]
+    rotation: 0
+    state: disabled
 - name: qtgui_number_sink_0
   id: qtgui_number_sink
   parameters:
@@ -1170,7 +1282,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [2096, 464.0]
+    coordinate: [2256, 408.0]
     rotation: 0
     state: enabled
 - name: qtgui_time_sink_x_0
@@ -1412,8 +1524,8 @@ connections:
 - [analog_const_source_x_0, '0', blocks_float_to_complex_0, '1']
 - [analog_const_source_x_0_0, '0', epy_block_0, '2']
 - [analog_const_source_x_0_0_0, '0', blocks_float_to_complex_1, '1']
-- [analog_ctcss_squelch_ff_0, '0', epy_block_0, '1']
-- [analog_ctcss_squelch_ff_0, '0', qtgui_number_sink_0, '0']
+- [analog_ctcss_squelch_ff_0, '0', blocks_rms_xx_0, '0']
+- [analog_ctcss_squelch_ff_0, '0', qtgui_freq_sink_x_4, '0']
 - [analog_fm_deemph_0, '0', epy_block_0, '0']
 - [analog_fm_deemph_0, '0', qtgui_freq_sink_x_1, '0']
 - [analog_fm_deemph_0, '0', qtgui_time_sink_x_0, '0']
@@ -1432,7 +1544,10 @@ connections:
 - [blocks_float_to_complex_0, '0', blocks_selector_0, '1']
 - [blocks_float_to_complex_1, '0', blocks_multiply_xx_0, '1']
 - [blocks_multiply_xx_0, '0', rational_resampler_xxx_0_0, '0']
+- [blocks_rms_xx_0, '0', blocks_threshold_ff_0_0, '0']
 - [blocks_selector_0, '0', blocks_multiply_xx_0, '0']
+- [blocks_threshold_ff_0_0, '0', epy_block_0, '1']
+- [blocks_threshold_ff_0_0, '0', qtgui_number_sink_0, '0']
 - [blocks_throttle2_0, '0', blocks_add_xx_2, '1']
 - [epy_block_0, '0', analog_nbfm_tx_0_0, '0']
 - [epy_block_0, '0', blocks_add_const_vxx_0, '0']
